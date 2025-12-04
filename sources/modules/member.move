@@ -9,6 +9,9 @@ module loychain::member {
 
   use loychain::util::{Self};
 
+  /// Error codes
+  const ERROR_MEMBER_EXISTS: u64 = 0;
+
   const NFT_CARD_KEY: vector<u8> = b"nft_cards";
 
   struct MemberBoard has key, store {

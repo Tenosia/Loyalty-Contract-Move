@@ -12,9 +12,10 @@ module loychain::nft {
   use loychain::partner::{Self, Partner};
   use loychain::util;
 
-  const ERROR_NOT_OWNER: u8 = 0;
-
-  // const LOGIC_TYPE: u8 = 1;
+  /// Error codes
+  const ERROR_NOT_OWNER: u64 = 0;
+  const ERROR_CARD_TIER_EXISTS: u64 = 1;
+  const ERROR_CARD_TYPE_EXISTS: u64 = 2;
 
   // Define NFTCardTier benefit and level, required
   struct NFTCardTier has key, store {
@@ -234,7 +235,12 @@ module loychain::nft {
   }
 
   public fun cancel_order(nft_card: &mut NFTCard): u64 {
-    nft_card.accumulated_value = nft_card.accumulated_value - nft_card.benefit;
+    // Safely subtract to prevent underflow
+    if (nft_card.accumulated_value >= nft_card.benefit) {
+      nft_card.accumulated_value = nft_card.accumulated_value - nft_card.benefit;
+    } else {
+      nft_card.accumulated_value = 0;
+    };
     nft_card.used_count = nft_card.used_count + 1;
     nft_card.benefit
   }

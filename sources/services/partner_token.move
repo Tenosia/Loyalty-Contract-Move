@@ -12,6 +12,7 @@ module loychain::partner_token {
   use loychain::token_managable;
   use loychain::util;
 
+  /// Error codes
   const ERROR_NOT_PARTNER_ADDRESS: u64 = 0;
   const ERROR_NO_TREASURY_CAP: u64 = 1;
   const ERROR_INCORRECT_TOKEN_NAME: u64 = 2;
@@ -43,10 +44,10 @@ module loychain::partner_token {
     ctx: &mut TxContext
   ) {
 
-    let partner: &mut Partner = partner::borrow_mut_parter_by_code(partner_code, partner_board );
+    let partner: &mut Partner = partner::borrow_mut_partner_by_code(partner_code, partner_board);
 
     assert!(partner::partner_owner_address(partner) == partner_address, ERROR_NOT_PARTNER_ADDRESS);
-    assert!(partner_treasury::treasury_cap_exists<Token>(partner) == true, ERROR_NO_TREASURY_CAP);
+    assert!(partner_treasury::treasury_cap_exists<Token>(partner), ERROR_NO_TREASURY_CAP);
 
     let token_name = partner::partner_token_name(partner);
     let token_sym = util::get_name_as_string<Token>();

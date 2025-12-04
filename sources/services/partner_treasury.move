@@ -8,7 +8,7 @@ module loychain::partner_treasury {
 
   public fun receive_treasury_cap<Token>(treasury_cap: TreasuryCap<Token>, partner_code: String, partner_board: &mut PartnerBoard) {
     let token_name = util::get_name_as_string<Token>();
-    let partner = partner::borrow_mut_parter_by_code(partner_code, partner_board);
+    let partner = partner::borrow_mut_partner_by_code(partner_code, partner_board);
     let partner_uid = partner::borrow_mut_partner_id(partner);
     dynamic_object_field::add<String, TreasuryCap<Token>>(partner_uid, token_name, treasury_cap);
   }

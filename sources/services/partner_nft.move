@@ -9,10 +9,10 @@ module loychain::partner_nft {
 
   use loychain::member::{Self, MemberBoard, Member};
   use loychain::member_nft;
-  use loychain::partner_nft;
 
-  const ERROR_NOT_PARTNER_ADDRESS: u64 = 0u64;
-  const ERROR_MAX_SUPPLY_REACHED: u64 = 1u64;
+  /// Error codes
+  const ERROR_NOT_PARTNER_ADDRESS: u64 = 0;
+  const ERROR_MAX_SUPPLY_REACHED: u64 = 1;
 
   struct PartnerNFTCardCreatedEvent has copy, drop {
     card_id: ID,
@@ -182,11 +182,11 @@ module loychain::partner_nft {
     partner_code: String,
     partner_board: &mut PartnerBoard,
     ctx: &mut TxContext): ID{
-    let partner: &mut Partner = partner::borrow_mut_parter_by_code(partner_code, partner_board);
+    let partner: &mut Partner = partner::borrow_mut_partner_by_code(partner_code, partner_board);
 
     assert!(partner::partner_owner_address(partner) == partner_address, ERROR_NOT_PARTNER_ADDRESS);
 
-    let nft_card = partner_nft::mint_card(
+    let nft_card = mint_card(
       card_tier_name,
       card_type_name,
       partner_address,

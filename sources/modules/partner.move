@@ -8,6 +8,12 @@ module loychain::partner {
 
   use std::string::{ String};
 
+  /// Error codes
+  const ERROR_PARTNER_NOT_OWNER: u64 = 0;
+  const ERROR_PARTNER_EXISTS: u64 = 1;
+  const ERROR_COMPANY_EXISTS: u64 = 2;
+
+  /// Visibility constants
   const VISIBILITY_HIDDEN: u64 = 0;
   const VISIBILITY_VISIBLE: u64 = 1;
 
@@ -186,7 +192,7 @@ module loychain::partner {
     };
 
     let (partner_id, visibility, partner_owner_address) = {
-      let partner = borrow_mut_parter_by_code(partner_code, partner_board);
+      let partner = borrow_mut_partner_by_code(partner_code, partner_board);
       partner.companies_count = partner.companies_count + 1;
       (
         object::id(partner),
@@ -209,7 +215,7 @@ module loychain::partner {
       logo_url,
       visibility,
       owner_address: partner_address,
-      members_count: 064,
+      members_count: 0u128,
       created_at,
       partner_id
     };
@@ -275,8 +281,13 @@ module loychain::partner {
     dynamic_object_field::borrow<String, Partner>(&partner_board.id, code)
   }
 
-  public fun borrow_mut_parter_by_code(code: String, partner_board: &mut PartnerBoard): &mut Partner {
+  public fun borrow_mut_partner_by_code(code: String, partner_board: &mut PartnerBoard): &mut Partner {
     dynamic_object_field::borrow_mut<String, Partner>(&mut partner_board.id, code)
+  }
+
+  // Backward compatibility alias - deprecated, use borrow_mut_partner_by_code
+  public fun borrow_mut_parter_by_code(code: String, partner_board: &mut PartnerBoard): &mut Partner {
+    borrow_mut_partner_by_code(code, partner_board)
   }
 
   public fun borrow_mut_partner_id(partner: &mut Partner): &mut UID {
