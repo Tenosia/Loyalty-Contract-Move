@@ -15,10 +15,10 @@ module loychain::partner_order {
 
   use std::string::{String};
 
+  /// Error codes
   const ERROR_NOT_PARTNER_ADDRESS: u64 = 1;
   const ERROR_NO_TREASURY_CAP: u64 = 2;
   const ERROR_INCORRECT_TOKEN_NAME: u64 = 3;
-
 
   struct PartnerCompletedOrderEvent has copy, drop {
     order_id: String,
@@ -26,6 +26,14 @@ module loychain::partner_order {
     owner: address,
     partner_address: address,
     created_at: u64
+  }
+
+  struct PartnerCancelledOrderEvent has copy, drop {
+    order_id: String,
+    token_burned: u64,
+    owner: address,
+    partner_address: address,
+    cancelled_at: u64
   }
 
   public fun complete_order<Token>(
@@ -38,10 +46,10 @@ module loychain::partner_order {
     partner_board: &mut PartnerBoard,
     ctx: &mut TxContext){
 
-    let partner: &mut Partner = partner::borrow_mut_parter_by_code(partner_code, partner_board );
+    let partner: &mut Partner = partner::borrow_mut_partner_by_code(partner_code, partner_board);
 
     assert!(partner::partner_owner_address(partner) == partner_address, ERROR_NOT_PARTNER_ADDRESS);
-    assert!(partner_treasury::treasury_cap_exists<Token>(partner) == true, ERROR_NO_TREASURY_CAP);
+    assert!(partner_treasury::treasury_cap_exists<Token>(partner), ERROR_NO_TREASURY_CAP);
 
     let token_name = partner::partner_token_name(partner);
     let token_sym = util::get_name_as_string<Token>();
@@ -78,10 +86,10 @@ module loychain::partner_order {
     partner_board: &mut PartnerBoard,
     ctx: &mut TxContext){
 
-    let partner: &mut Partner = partner::borrow_mut_parter_by_code(partner_code, partner_board );
+    let partner: &mut Partner = partner::borrow_mut_partner_by_code(partner_code, partner_board);
 
     assert!(partner::partner_owner_address(partner) == partner_address, ERROR_NOT_PARTNER_ADDRESS);
-    assert!(partner_treasury::treasury_cap_exists<Token>(partner) == true, ERROR_NO_TREASURY_CAP);
+    assert!(partner_treasury::treasury_cap_exists<Token>(partner), ERROR_NO_TREASURY_CAP);
 
     let token_name = partner::partner_token_name(partner);
     let token_sym = util::get_name_as_string<Token>();
@@ -97,16 +105,16 @@ module loychain::partner_order {
     let splitted_coin = member_token::split_coin<Token>(value, member, member_address, ctx);
     partner_token::burn(treasury_cap, splitted_coin, ctx);
 
-    let created_at = tx_context::epoch(ctx);
-    let completed_order_event = PartnerCompletedOrderEvent {
+    let cancelled_at = tx_context::epoch(ctx);
+    let cancelled_order_event = PartnerCancelledOrderEvent {
       order_id,
-      token_earn: value,
+      token_burned: value,
       owner: member_address,
       partner_address,
-      created_at
+      cancelled_at
     };
 
-    event::emit(completed_order_event);
+    event::emit(cancelled_order_event);
   }
 
 }

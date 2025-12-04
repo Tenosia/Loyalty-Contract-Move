@@ -8,8 +8,12 @@ module loychain::member_nft {
   use loychain::member::{Self, Member};
   use loychain::nft::{ NFTCard};
 
-  const NFT_CARD_KEY: vector<u8> = b"nft_cards";
+  /// Error codes
   const ERROR_NOT_OWNER: u64 = 0;
+  const ERROR_NFT_CARD_NOT_FOUND: u64 = 1;
+
+  /// Storage keys
+  const NFT_CARD_KEY: vector<u8> = b"nft_cards";
 
   struct MemberNFTCard has key, store {
     id: UID

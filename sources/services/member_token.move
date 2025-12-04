@@ -8,8 +8,9 @@ module loychain::member_token {
   use loychain::util;
   use loychain::member::{Self, Member};
 
-  const ERROR_NOT_OWNER: u64 = 0u64;
-  const ERROR_COIN_NOT_EXIST: u64 = 1u64;
+  /// Error codes
+  const ERROR_NOT_OWNER: u64 = 0;
+  const ERROR_COIN_NOT_EXIST: u64 = 1;
 
   struct MemberReceivedCoinEvent has copy, drop {
     coin_type: vector<u8>,
@@ -37,10 +38,11 @@ module loychain::member_token {
     let member_uid = member::borrow_mut_id(member);
 
     let from_amount = if(dynamic_object_field::exists_(member_uid, coin_type)) {
-      let existing_coin = dynamic_object_field::borrow_mut(member_uid, coin_type);
+      let existing_coin: &mut Coin<T> = dynamic_object_field::borrow_mut(member_uid, coin_type);
+      let balance_before = coin::value(existing_coin);
       coin::join(existing_coin, coin);
-      coin::value(existing_coin)
-    }else {
+      balance_before
+    } else {
       dynamic_object_field::add(member_uid, coin_type, coin);
       0u64
     };
